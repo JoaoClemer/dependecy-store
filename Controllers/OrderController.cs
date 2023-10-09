@@ -12,12 +12,16 @@ public class OrderController : ControllerBase
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IDeliveryFeeService _deliveryFeeService;
+    private readonly IPromoCodeRepository _promoCodeRepository;
     public OrderController(
         ICustomerRepository customerRepository,
-        IDeliveryFeeService deliveryFeeService)
+        IDeliveryFeeService deliveryFeeService,
+        IPromoCodeRepository promoCodeRepository)
     {
         _customerRepository = customerRepository;
         _deliveryFeeService = deliveryFeeService;
+        _promoCodeRepository = promoCodeRepository;
+
     }
 
     [Route("v1/orders")]
@@ -31,8 +35,9 @@ public class OrderController : ControllerBase
         }
 
         var deliveryFee = await _deliveryFeeService.GetDeliveryFeeAsync(zipCode);
-        
 
+        var cupom = await _promoCodeRepository.GetPromoCodeAsync(promoCode);
+        
         // #3 - Calcula o total dos produtos
         decimal subTotal = 0;
         const string getProductQuery = "SELECT [Id], [Name], [Price] FROM PRODUCT WHERE ID=@id";
